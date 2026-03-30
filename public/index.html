@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriUniverse Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #1a1a1a;
+      padding: 16px 24px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      color: #000;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    header p {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      line-height: 1.6;
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      background: #00c853;
+      color: #000;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
+    }
+
+    .message.bot {
+      background: #1e1e1e;
+      color: #e0e0e0;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      border: 1px solid #2a2a2a;
+    }
+
+    .message.bot strong {
+      color: #00c853;
+    }
+
+    .typing {
+      background: #1e1e1e;
+      color: #888;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      border: 1px solid #2a2a2a;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    #input-area {
+      background: #1a1a1a;
+      border-top: 1px solid #2a2a2a;
+      padding: 16px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    #user-input {
+      flex: 1;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      color: #f0f0f0;
+      padding: 12px 16px;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      min-height: 46px;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+
+    #user-input:focus {
+      border-color: #00c853;
+    }
+
+    #user-input::placeholder {
+      color: #555;
+    }
+
+    button#send-btn {
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    button#send-btn:hover { opacity: 0.85; }
+    button#send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .hint {
+      font-size: 11px;
+      color: #444;
+      text-align: center;
+      padding: 6px 0 0;
+    }
+
+    /* Scrollbar */
+    #chat-box::-webkit-scrollbar { width: 6px; }
+    #chat-box::-webkit-scrollbar-track { background: #0f0f0f; }
+    #chat-box::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">N</div>
+  <div>
+    <h1>NutriUniverse Agent</h1>
+    <p>Creator Monetization Operator</p>
+  </div>
+</header>
+
+<div id="chat-box">
+  <div class="message bot">
+Hey 👋 I'm your NutriUniverse monetization operator.
+
+Give me a creator to analyze. Just describe them like this:
+
+<strong>Example:</strong>
+"Analyze @fitcoach_jane — 80K followers on Instagram, posts fat loss tips for women, no digital products, only sells 1-on-1 coaching"
+
+I'll give you:
+→ Creator analysis
+→ Monetization gap
+→ Product idea
+→ DM to send them
+→ How to reply if they respond
+
+Type <strong>/reset</strong> to start a fresh conversation.
+  </div>
+</div>
+
+<div id="input-area">
+  <textarea id="user-input" placeholder="Describe a creator or ask anything..." rows="1"></textarea>
+  <button id="send-btn">Send</button>
+</div>
+<div class="hint">Press Enter to send · Shift+Enter for new line</div>
+
+<script>
+  const chatBox = document.getElementById('chat-box');
+  const input = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  // Unique session ID per browser tab
+  const sessionId = 'sess_' + Math.random().toString(36).slice(2);
+
+  function scrollDown() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function addMessage(text, role) {
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    // Bold anything between ** **
+    div.innerHTML = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/→/g, '→');
+    chatBox.appendChild(div);
+    scrollDown();
+    return div;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'message typing';
+    div.textContent = 'Agent is thinking...';
+    chatBox.appendChild(div);
+    scrollDown();
+    return div;
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, 'user');
+    input.value = '';
+    input.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    const typing = addTyping();
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, message: text })
+      });
+
+      const data = await res.json();
+      typing.remove();
+
+      if (data.reply) {
+        addMessage(data.reply, 'bot');
+      } else {
+        addMessage('Something went wrong. Make sure your ANTHROPIC_API_KEY is set in .env', 'bot');
+      }
+    } catch (e) {
+      typing.remove();
+      addMessage('Could not reach the server. Is it running?', 'bot');
+    }
+
+    sendBtn.disabled = false;
+    input.focus();
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Auto-resize textarea
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+</script>
+</body>
+</html>
