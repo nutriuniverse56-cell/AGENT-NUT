@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriUniverse Shop</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    nav {
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    nav .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-right: auto;
+    }
+
+    nav .brand .logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 15px;
+      color: #000;
+    }
+
+    nav .brand span {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    nav .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    nav .nav-links a {
+      text-decoration: none;
+      color: #aaa;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+    }
+
+    nav .nav-links a:hover { background: #2a2a2a; color: #fff; }
+    nav .nav-links a.active { color: #00c853; background: #1a2e1e; }
+
+    .cart-badge {
+      background: #00c853;
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 48px 24px 32px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: #888;
+      font-size: 15px;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      padding: 0 24px 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      color: #aaa;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: #1a2e1e;
+      border-color: #00c853;
+      color: #00c853;
+    }
+
+    /* Product grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      padding: 0 24px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: #3a3a3a;
+    }
+
+    .card .emoji {
+      font-size: 44px;
+      text-align: center;
+    }
+
+    .card .category {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #00c853;
+      font-weight: 600;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .card .price {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card .price span {
+      font-size: 14px;
+      color: #555;
+      font-weight: 400;
+    }
+
+    .card button {
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 11px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      width: 100%;
+    }
+
+    .card button:hover { opacity: 0.85; }
+
+    .card button.added {
+      background: #1e1e1e;
+      border: 1px solid #00c853;
+      color: #00c853;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #1a2e1e;
+      border: 1px solid #00c853;
+      color: #00c853;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      z-index: 999;
+    }
+
+    #toast.show { opacity: 1; }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      color: #555;
+      padding: 60px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="/">
+    <div class="logo">N</div>
+    <span>NutriUniverse</span>
+  </a>
+  <div class="nav-links">
+    <a href="/shop.html" class="active">Shop</a>
+    <a href="/cart.html">Cart <span class="cart-badge" id="nav-badge" style="display:none">0</span></a>
+    <a href="/">Agent</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Premium Nutrition</h1>
+  <p>Science-backed supplements to fuel your best self</p>
+</div>
+
+<div class="filter-bar" id="filter-bar">
+  <button class="filter-btn active" data-cat="All">All</button>
+</div>
+
+<div class="grid" id="grid">
+  <div class="loading">Loading products...</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const SESSION_KEY = 'nuShopSession';
+
+  function getSessionId() {
+    let id = localStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = 'shop_' + Math.random().toString(36).slice(2);
+      localStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  }
+
+  const sessionId = getSessionId();
+  let allProducts = [];
+  let activeCategory = 'All';
+
+  async function loadCartCount() {
+    try {
+      const res = await fetch(`/api/cart/${sessionId}`);
+      const data = await res.json();
+      const count = data.items.reduce((s, i) => s + i.qty, 0);
+      const badge = document.getElementById('nav-badge');
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    } catch {}
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  async function addToCart(productId, btn) {
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, productId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        btn.textContent = 'Added!';
+        btn.classList.add('added');
+        setTimeout(() => {
+          btn.textContent = 'Add to Cart';
+          btn.classList.remove('added');
+          btn.disabled = false;
+        }, 1400);
+        const badge = document.getElementById('nav-badge');
+        badge.textContent = data.cartCount;
+        badge.style.display = 'inline-flex';
+        showToast('Added to cart!');
+      }
+    } catch {
+      btn.disabled = false;
+    }
+  }
+
+  function renderGrid(products) {
+    const grid = document.getElementById('grid');
+    if (products.length === 0) {
+      grid.innerHTML = '<div class="loading">No products in this category.</div>';
+      return;
+    }
+    grid.innerHTML = products.map(p => `
+      <div class="card">
+        <div class="emoji">${p.emoji}</div>
+        <div class="category">${p.category}</div>
+        <h3>${p.name}</h3>
+        <p>${p.description}</p>
+        <div class="price">$${p.price.toFixed(2)} <span>/ unit</span></div>
+        <button onclick="addToCart(${p.id}, this)">Add to Cart</button>
+      </div>
+    `).join('');
+  }
+
+  function buildFilters(products) {
+    const cats = ['All', ...new Set(products.map(p => p.category))];
+    const bar = document.getElementById('filter-bar');
+    bar.innerHTML = cats.map(c =>
+      `<button class="filter-btn${c === 'All' ? ' active' : ''}" data-cat="${c}">${c}</button>`
+    ).join('');
+    bar.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = btn.dataset.cat;
+        const filtered = activeCategory === 'All'
+          ? allProducts
+          : allProducts.filter(p => p.category === activeCategory);
+        renderGrid(filtered);
+      });
+    });
+  }
+
+  async function init() {
+    const res = await fetch('/api/products');
+    allProducts = await res.json();
+    buildFilters(allProducts);
+    renderGrid(allProducts);
+    loadCartCount();
+  }
+
+  init();
+</script>
+</body>
+</html>

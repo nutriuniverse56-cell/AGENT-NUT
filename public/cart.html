@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart — NutriUniverse</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    nav {
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    nav .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-right: auto;
+    }
+
+    nav .brand .logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 15px;
+      color: #000;
+    }
+
+    nav .brand span { font-size: 17px; font-weight: 600; color: #fff; }
+
+    nav .nav-links { display: flex; gap: 8px; }
+
+    nav .nav-links a {
+      text-decoration: none;
+      color: #aaa;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    nav .nav-links a:hover { background: #2a2a2a; color: #fff; }
+    nav .nav-links a.active { color: #00c853; background: #1a2e1e; }
+
+    .cart-badge {
+      background: #00c853;
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .page {
+      max-width: 780px;
+      margin: 40px auto;
+      padding: 0 24px 60px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 80px 24px;
+      color: #555;
+    }
+
+    .empty .icon { font-size: 56px; margin-bottom: 16px; }
+    .empty p { font-size: 16px; margin-bottom: 24px; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 28px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; }
+
+    /* Cart items */
+    .cart-item {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .cart-item .emoji { font-size: 38px; flex-shrink: 0; }
+
+    .cart-item .info { flex: 1; }
+
+    .cart-item .info .name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+
+    .cart-item .info .unit-price { font-size: 13px; color: #777; }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .qty-controls button {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .qty-controls button:hover { background: #3a3a3a; }
+    .qty-controls .qty { font-size: 15px; font-weight: 600; min-width: 20px; text-align: center; }
+
+    .cart-item .subtotal {
+      font-size: 16px;
+      font-weight: 700;
+      min-width: 72px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .cart-item .remove-btn {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .cart-item .remove-btn:hover { color: #ff5252; }
+
+    /* Summary */
+    .summary {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .summary-row.total {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 14px;
+      margin-top: 6px;
+      margin-bottom: 20px;
+    }
+
+    .summary .checkout-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+
+    .summary .checkout-btn:hover { opacity: 0.85; }
+
+    .continue-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #00c853;
+      text-decoration: none;
+    }
+
+    .continue-link:hover { text-decoration: underline; }
+
+    .loading { text-align: center; color: #555; padding: 60px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="/">
+    <div class="logo">N</div>
+    <span>NutriUniverse</span>
+  </a>
+  <div class="nav-links">
+    <a href="/shop.html">Shop</a>
+    <a href="/cart.html" class="active">Cart <span class="cart-badge" id="nav-badge" style="display:none">0</span></a>
+    <a href="/">Agent</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Your Cart</h1>
+  <div id="cart-content"><div class="loading">Loading cart...</div></div>
+</div>
+
+<script>
+  const SESSION_KEY = 'nuShopSession';
+
+  function getSessionId() {
+    let id = localStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = 'shop_' + Math.random().toString(36).slice(2);
+      localStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  }
+
+  const sessionId = getSessionId();
+
+  function updateBadge(count) {
+    const badge = document.getElementById('nav-badge');
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  async function removeItem(productId) {
+    await fetch('/api/cart/remove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, productId })
+    });
+    loadCart();
+  }
+
+  async function updateQty(productId, delta, currentQty) {
+    const newQty = currentQty + delta;
+    if (newQty <= 0) { return removeItem(productId); }
+    await fetch('/api/cart/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, productId, qty: newQty })
+    });
+    loadCart();
+  }
+
+  async function loadCart() {
+    const res = await fetch(`/api/cart/${sessionId}`);
+    const data = await res.json();
+    const container = document.getElementById('cart-content');
+    const totalCount = data.items.reduce((s, i) => s + i.qty, 0);
+    updateBadge(totalCount);
+
+    if (data.items.length === 0) {
+      container.innerHTML = `
+        <div class="empty">
+          <div class="icon">🛒</div>
+          <p>Your cart is empty</p>
+          <a href="/shop.html" class="btn-primary">Browse Products</a>
+        </div>`;
+      return;
+    }
+
+    const itemsHtml = data.items.map(item => `
+      <div class="cart-item">
+        <div class="emoji">${item.emoji}</div>
+        <div class="info">
+          <div class="name">${item.name}</div>
+          <div class="unit-price">$${item.price.toFixed(2)} each</div>
+        </div>
+        <div class="qty-controls">
+          <button onclick="updateQty(${item.id}, -1, ${item.qty})">−</button>
+          <span class="qty">${item.qty}</span>
+          <button onclick="updateQty(${item.id}, 1, ${item.qty})">+</button>
+        </div>
+        <div class="subtotal">$${item.subtotal.toFixed(2)}</div>
+        <button class="remove-btn" onclick="removeItem(${item.id})" title="Remove">✕</button>
+      </div>
+    `).join('');
+
+    const summaryHtml = `
+      <div class="summary">
+        <div class="summary-row"><span>Subtotal</span><span>$${data.total.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>Free</span></div>
+        <div class="summary-row total"><span>Total</span><span>$${data.total.toFixed(2)}</span></div>
+        <a href="/checkout.html" class="checkout-btn">Proceed to Checkout</a>
+      </div>
+      <a href="/shop.html" class="continue-link">← Continue Shopping</a>
+    `;
+
+    container.innerHTML = itemsHtml + summaryHtml;
+  }
+
+  loadCart();
+</script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout — NutriUniverse</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    nav {
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    nav .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-right: auto;
+    }
+
+    nav .brand .logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 15px;
+      color: #000;
+    }
+
+    nav .brand span { font-size: 17px; font-weight: 600; color: #fff; }
+
+    nav .nav-links { display: flex; gap: 8px; }
+
+    nav .nav-links a {
+      text-decoration: none;
+      color: #aaa;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    nav .nav-links a:hover { background: #2a2a2a; color: #fff; }
+    nav .nav-links a.active { color: #00c853; background: #1a2e1e; }
+
+    .cart-badge {
+      background: #00c853;
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px 60px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .page { grid-template-columns: 1fr; }
+    }
+
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+
+    /* Form */
+    .form-card {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #00c853;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      color: #f0f0f0;
+      padding: 11px 14px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus { border-color: #00c853; }
+    .form-group input::placeholder { color: #555; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+      margin: 22px 0;
+    }
+
+    .place-order-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 4px;
+    }
+
+    .place-order-btn:hover { opacity: 0.85; }
+    .place-order-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .error-msg {
+      color: #ff5252;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Order summary */
+    .summary-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 24px;
+      position: sticky;
+      top: 24px;
+    }
+
+    .summary-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .summary-item .emoji { font-size: 26px; }
+
+    .summary-item .info { flex: 1; }
+    .summary-item .info .name { font-size: 13px; font-weight: 500; }
+    .summary-item .info .qty { font-size: 12px; color: #666; }
+    .summary-item .sub { font-size: 14px; font-weight: 600; }
+
+    .summary-divider {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+      margin: 14px 0;
+    }
+
+    .summary-totals .row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .summary-totals .row.total {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 6px;
+    }
+
+    /* Confirmation screen */
+    #confirmation {
+      display: none;
+      max-width: 520px;
+      margin: 80px auto;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    #confirmation .check { font-size: 64px; margin-bottom: 20px; }
+    #confirmation h2 { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+    #confirmation p { color: #888; font-size: 15px; margin-bottom: 8px; }
+    #confirmation .order-id { color: #00c853; font-weight: 600; font-size: 16px; }
+
+    #confirmation .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00c853, #1de9b6);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 24px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; }
+
+    .btn-secondary {
+      background: #1e1e1e;
+      border: 1px solid #3a3a3a;
+      border-radius: 10px;
+      color: #f0f0f0;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 24px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover { background: #2a2a2a; }
+
+    .loading { text-align: center; color: #555; padding: 40px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="/">
+    <div class="logo">N</div>
+    <span>NutriUniverse</span>
+  </a>
+  <div class="nav-links">
+    <a href="/shop.html">Shop</a>
+    <a href="/cart.html">Cart</a>
+    <a href="/">Agent</a>
+  </div>
+</nav>
+
+<!-- Checkout layout -->
+<div class="page" id="checkout-page">
+  <!-- Left: form -->
+  <div>
+    <h1>Checkout</h1>
+    <div class="form-card">
+      <div class="section-title">Contact Information</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="f-name" placeholder="Jane Smith" />
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="f-email" placeholder="jane@example.com" />
+      </div>
+
+      <hr class="divider" />
+
+      <div class="section-title">Shipping Address</div>
+      <div class="form-group">
+        <label>Street Address</label>
+        <input type="text" id="f-address" placeholder="123 Wellness Ave" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="f-city" placeholder="Los Angeles" />
+        </div>
+        <div class="form-group">
+          <label>Postcode</label>
+          <input type="text" id="f-zip" placeholder="90001" />
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="section-title">Payment</div>
+      <div class="form-group">
+        <label>Card Number</label>
+        <input type="text" placeholder="Demo mode — no real payment" disabled style="opacity:0.45" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Expiry</label>
+          <input type="text" placeholder="MM / YY" disabled style="opacity:0.45" />
+        </div>
+        <div class="form-group">
+          <label>CVC</label>
+          <input type="text" placeholder="•••" disabled style="opacity:0.45" />
+        </div>
+      </div>
+
+      <button class="place-order-btn" id="place-btn" onclick="placeOrder()">Place Order</button>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+  </div>
+
+  <!-- Right: summary -->
+  <div>
+    <div class="summary-card">
+      <h2>Order Summary</h2>
+      <div id="summary-items"><div class="loading">Loading...</div></div>
+      <hr class="summary-divider" />
+      <div class="summary-totals" id="summary-totals"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation screen (hidden until order placed) -->
+<div id="confirmation">
+  <div class="check">✅</div>
+  <h2>Order Confirmed!</h2>
+  <p>Thank you for your order.</p>
+  <p class="order-id" id="conf-order-id"></p>
+  <p style="margin-top:8px">A confirmation has been sent to <span id="conf-email" style="color:#fff"></span></p>
+  <div class="actions">
+    <a href="/shop.html" class="btn-primary">Continue Shopping</a>
+    <a href="/" class="btn-secondary">Visit Agent</a>
+  </div>
+</div>
+
+<script>
+  const SESSION_KEY = 'nuShopSession';
+
+  function getSessionId() {
+    let id = localStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = 'shop_' + Math.random().toString(36).slice(2);
+      localStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  }
+
+  const sessionId = getSessionId();
+
+  async function loadSummary() {
+    const res = await fetch(`/api/cart/${sessionId}`);
+    const data = await res.json();
+
+    if (data.items.length === 0) {
+      // Redirect to shop if cart empty and not already confirmed
+      if (!document.getElementById('confirmation').style.display || document.getElementById('confirmation').style.display === 'none') {
+        window.location.href = '/shop.html';
+      }
+      return;
+    }
+
+    document.getElementById('summary-items').innerHTML = data.items.map(item => `
+      <div class="summary-item">
+        <div class="emoji">${item.emoji}</div>
+        <div class="info">
+          <div class="name">${item.name}</div>
+          <div class="qty">Qty: ${item.qty}</div>
+        </div>
+        <div class="sub">$${item.subtotal.toFixed(2)}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('summary-totals').innerHTML = `
+      <div class="row"><span>Subtotal</span><span>$${data.total.toFixed(2)}</span></div>
+      <div class="row"><span>Shipping</span><span>Free</span></div>
+      <div class="row total"><span>Total</span><span>$${data.total.toFixed(2)}</span></div>
+    `;
+  }
+
+  async function placeOrder() {
+    const name = document.getElementById('f-name').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const address = document.getElementById('f-address').value.trim();
+    const city = document.getElementById('f-city').value.trim();
+    const zip = document.getElementById('f-zip').value.trim();
+
+    const errEl = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    if (!name || !email || !address || !city || !zip) {
+      errEl.textContent = 'Please fill in all required fields.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'Please enter a valid email address.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('place-btn');
+    btn.disabled = true;
+    btn.textContent = 'Placing order...';
+
+    try {
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, name, email, address, city, zip })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('checkout-page').style.display = 'none';
+        const conf = document.getElementById('confirmation');
+        conf.style.display = 'block';
+        document.getElementById('conf-order-id').textContent = 'Order ID: ' + data.orderId;
+        document.getElementById('conf-email').textContent = email;
+      } else {
+        errEl.textContent = data.error || 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Place Order';
+      }
+    } catch {
+      errEl.textContent = 'Could not reach the server. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Place Order';
+    }
+  }
+
+  loadSummary();
+</script>
+</body>
+</html>
