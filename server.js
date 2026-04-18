@@ -12,6 +12,10 @@ const sessions = new Map();
 const MAX_HISTORY = 20;
 
 app.use(express.json());
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'landing.html')));
+app.get('/chat-ui', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/chat', async (req, res) => {
