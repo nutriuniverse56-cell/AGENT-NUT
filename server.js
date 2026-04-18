@@ -63,7 +63,11 @@ app.post('/chat', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`\n✅ NutriUniverse Agent is running!`);
-  console.log(`👉 Open this link in your browser: http://localhost:${PORT}\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n✅ NutriUniverse Agent is running!`);
+    console.log(`👉 Open this link in your browser: http://localhost:${PORT}\n`);
+  });
+}
+
+module.exports = app;
